@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tienda digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D10;
+    --surface:#1B1F26;
+    --surface-2:#20242C;
+    --line:#2E333C;
+    --ink:#EDEFF2;
+    --muted:#8A93A0;
+    --accent:#29C4B4;
+    --accent-ink:#04211D;
+    --danger:#E1573B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+    line-height:1.5;
+  }
+  .ticket{
+    width:100%;
+    max-width:880px;
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    background:var(--surface);
+    border:1px solid var(--line);
+  }
+  @media (max-width:720px){
+    .ticket{grid-template-columns:1fr;}
+  }
+  .visual{
+    position:relative;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    border-right:1px dashed var(--line);
+    background:
+      radial-gradient(circle at 20% 15%, rgba(41,196,180,0.14), transparent 55%),
+      var(--surface);
+  }
+  @media (max-width:720px){
+    .visual{border-right:none;border-bottom:1px dashed var(--line);}
+  }
+  .mark{
+    width:56px;height:56px;
+    border:1px solid var(--accent);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--accent);
+    font-family:'Fraunces',serif;
+    font-size:22px;
+  }
+  .visual .tag{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:28px;
+  }
+  .visual .tag strong{color:var(--ink);font-weight:500;}
+  .product-image{
+    margin-top:24px;
+    aspect-ratio:4/3;
+    width:100%;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:13px;
+    overflow:hidden;
+  }
+  .product-image img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  .info{
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+  }
+  .info h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(26px,4vw,32px);
+    line-height:1.15;
+    margin:0 0 12px;
+    max-width:22ch;
+  }
+  .info p.desc{
+    color:var(--muted);
+    font-size:15px;
+    max-width:46ch;
+    margin:0 0 28px;
+  }
+  .price-row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    padding-bottom:20px;
+    border-bottom:1px dashed var(--line);
+    margin-bottom:20px;
+  }
+  .price-row .amount{
+    font-family:'Fraunces',serif;
+    font-size:40px;
+  }
+  .price-row .currency{color:var(--muted);font-size:14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  .field input{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:11px 12px;
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+  }
+  .field input:focus{outline:1px solid var(--accent);border-color:var(--accent);}
+  button.buy{
+    margin-top:8px;
+    background:var(--accent);
+    color:var(--accent-ink);
+    border:none;
+    padding:15px 20px;
+    font-size:15px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  button.buy:disabled{opacity:0.6;cursor:progress;}
+  button.buy:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  .status{
+    margin-top:14px;
+    font-size:13px;
+    color:var(--muted);
+    min-height:18px;
+  }
+  .status.error{color:var(--danger);}
+  .fineprint{
+    margin-top:auto;
+    padding-top:24px;
+    font-size:12px;
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="ticket">
+  <div class="visual">
+    <div>
+      <div class="mark">Q</div>
+      <p class="tag">Pago con <strong>QvaPay</strong> · entrega digital inmediata al confirmarse el pago.</p>
+    </div>
+    <div class="product-image" id="productImage">Imagen del producto</div>
+  </div>
+
+  <div class="info">
+    <h1 id="productName">Nombre del producto</h1>
+    <p class="desc" id="productDesc">Describe aquí, en una o dos frases, qué recibe el comprador exactamente.</p>
+
+    <div class="price-row">
+      <span class="amount" id="productPrice">0.00</span>
+      <span class="currency">USD</span>
+    </div>
+
+    <form id="checkoutForm">
+      <div class="field">
+        <label for="email">Correo para recibir el archivo</label>
+        <input type="email" id="email" name="email" required placeholder="tu@correo.com" />
+      </div>
+      <button type="submit" class="buy" id="buyBtn">Pagar con QvaPay</button>
+      <div class="status" id="status"></div>
+    </form>
+
+    <p class="fineprint">Al pagar, QvaPay confirma la transacción y esta página envía el archivo automáticamente al correo indicado.</p>
+  </div>
+</div>
+
+<script>
+  // ---- Edita estos datos según tu producto ----
+  const CONFIG = {
+    nombre: "Nombre del producto",
+    descripcion: "Describe aquí, en una o dos frases, qué recibe el comprador exactamente.",
+    precio: 10.00,
+    imagen: null, // ej: "portada.jpg"
+    remoteIdPrefix: "PED"
+  };
+  // ----------------------------------------------
+
+  document.getElementById('productName').textContent = CONFIG.nombre;
+  document.getElementById('productDesc').textContent = CONFIG.descripcion;
+  document.getElementById('productPrice').textContent = CONFIG.precio.toFixed(2);
+  if (CONFIG.imagen) {
+    document.getElementById('productImage').innerHTML = `<img src="${CONFIG.imagen}" alt="${CONFIG.nombre}">`;
+  }
+
+  const form = document.getElementById('checkoutForm');
+  const btn = document.getElementById('buyBtn');
+  const status = document.getElementById('status');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.classList.remove('error');
+    status.textContent = 'Creando factura…';
+    btn.disabled = true;
+
+    const email = document.getElementById('email').value;
+    const remote_id = CONFIG.remoteIdPrefix + '-' + Date.now();
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          amount: CONFIG.precio,
+          description: CONFIG.nombre,
+          remote_id,
+          email
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'No se pudo crear la factura');
+
+      status.textContent = 'Redirigiendo a QvaPay…';
+      window.location.href = data.url;
+    } catch (err) {
+      status.classList.add('error');
+      status.textContent = 'Error: ' + err.message;
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

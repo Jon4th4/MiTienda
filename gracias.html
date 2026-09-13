@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gracias por tu compra</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D10; --surface:#1B1F26; --line:#2E333C;
+    --ink:#EDEFF2; --muted:#8A93A0; --accent:#29C4B4; --accent-ink:#04211D; --danger:#E1573B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .card{
+    max-width:440px;width:100%;
+    background:var(--surface);border:1px solid var(--line);
+    padding:40px;text-align:center;
+  }
+  h1{font-family:'Fraunces',serif;font-weight:500;font-size:26px;margin:0 0 12px;}
+  p{color:var(--muted);font-size:14px;margin:0 0 24px;}
+  .btn{
+    display:inline-block;background:var(--accent);color:var(--accent-ink);
+    padding:14px 22px;text-decoration:none;font-weight:600;font-size:14px;
+  }
+  .pending .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--muted);
+    display:inline-block;margin-right:8px;animation:pulse 1.2s infinite;
+  }
+  @keyframes pulse{50%{opacity:0.3;}}
+  .error{color:var(--danger);}
+</style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>Confirmando tu pago…</h1>
+    <p class="pending"><span class="dot"></span>Esto suele tardar solo unos segundos.</p>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const remoteId = params.get('order');
+  const card = document.getElementById('card');
+
+  async function checkStatus() {
+    if (!remoteId) {
+      card.innerHTML = '<h1 class="error">Falta el número de pedido</h1><p>Vuelve a la tienda e inténtalo de nuevo.</p>';
+      return;
+    }
+    try {
+      const res = await fetch('/api/status/' + encodeURIComponent(remoteId));
+      const data = await res.json();
+
+      if (data.status === 'paid') {
+        card.innerHTML = `
+          <h1>¡Pago confirmado!</h1>
+          <p>Te enviamos el archivo a tu correo. También puedes descargarlo aquí:</p>
+          <a class="btn" href="${data.downloadUrl}">Descargar archivo</a>
+        `;
+      } else if (data.status === 'pending') {
+        setTimeout(checkStatus, 3000);
+      } else {
+        card.innerHTML = '<h1 class="error">No encontramos ese pedido</h1><p>Si ya pagaste, escríbenos con tu número de pedido: ' + remoteId + '</p>';
+      }
+    } catch (e) {
+      card.innerHTML = '<h1 class="error">Error de conexión</h1><p>Actualiza la página en unos segundos.</p>';
+    }
+  }
+
+  checkStatus();
+</script>
+</body>
+</html>
